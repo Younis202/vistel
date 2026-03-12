@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { useListPatients, useCreatePatient, CreatePatientInputGender } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Eye, Calendar } from "lucide-react";
+import { Plus, Search, Eye, Calendar, Users } from "lucide-react";
 import { format } from "date-fns";
 import { Modal } from "@/components/ui-custom/Modal";
 

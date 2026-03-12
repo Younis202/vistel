@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "AI Eye Diagnosis"
+version = "1.0.0"
+id = "artifacts/eye-diagnosis"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 18845
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/eye-diagnosis run dev"
+
+[services.env]
+PORT = "18845"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/eye-diagnosis", "run", "build"]
+publicDir = "artifacts/eye-diagnosis/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

@@ -1,22 +1,24 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AI Eye Diagnosis API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: patients
+    description: Patient management
+  - name: analyses
+    description: Retinal image analyses
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +26,140 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /patients:
+    get:
+      operationId: listPatients
+      tags: [patients]
+      summary: List all patients
+      responses:
+        "200":
+          description: List of patients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Patient"
+    post:
+      operationId: createPatient
+      tags: [patients]
+      summary: Create a new patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePatientInput"
+      responses:
+        "201":
+          description: Created patient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+
+  /patients/{patientId}:
+    get:
+      operationId: getPatient
+      tags: [patients]
+      summary: Get patient by ID
+      parameters:
+        - name: patientId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Patient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /patients/{patientId}/analyses:
+    get:
+      operationId: listPatientAnalyses
+      tags: [analyses]
+      summary: List analyses for a patient
+      parameters:
+        - name: patientId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of analyses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Analysis"
+
+  /analyses:
+    post:
+      operationId: createAnalysis
+      tags: [analyses]
+      summary: Create a new analysis (upload image + run AI)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [patientId, imageBase64, imageName, eyeSide]
+              properties:
+                patientId:
+                  type: integer
+                imageBase64:
+                  type: string
+                imageName:
+                  type: string
+                eyeSide:
+                  type: string
+                  enum: [left, right, both]
+      responses:
+        "201":
+          description: Analysis created with AI results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Analysis"
+
+  /analyses/{analysisId}:
+    get:
+      operationId: getAnalysis
+      tags: [analyses]
+      summary: Get analysis by ID
+      parameters:
+        - name: analysisId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Analysis"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +170,116 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Patient:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        age:
+          type: integer
+        gender:
+          type: string
+          enum: [male, female, other]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - age
+        - gender
+        - createdAt
+
+    CreatePatientInput:
+      type: object
+      properties:
+        name:
+          type: string
+        age:
+          type: integer
+        gender:
+          type: string
+          enum: [male, female, other]
+      required:
+        - name
+        - age
+        - gender
+
+    DiseaseResult:
+      type: object
+      properties:
+        name:
+          type: string
+        detected:
+          type: boolean
+        confidence:
+          type: number
+        severity:
+          type: string
+          enum: [none, mild, moderate, severe]
+        findings:
+          type: string
+      required:
+        - name
+        - detected
+        - confidence
+        - severity
+        - findings
+
+    Analysis:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        eyeSide:
+          type: string
+          enum: [left, right, both]
+        imageName:
+          type: string
+        imageUrl:
+          type: string
+        imageQualityScore:
+          type: number
+        imageQualityOk:
+          type: boolean
+        overallRisk:
+          type: string
+          enum: [normal, low, moderate, high, critical]
+        diseases:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiseaseResult"
+        summary:
+          type: string
+        recommendations:
+          type: string
+        analysisTime:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - patientId
+        - eyeSide
+        - imageName
+        - imageQualityScore
+        - imageQualityOk
+        - overallRisk
+        - diseases
+        - summary
+        - recommendations
+        - analysisTime
+        - createdAt

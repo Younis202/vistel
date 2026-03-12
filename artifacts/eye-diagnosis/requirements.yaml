@@ -1,0 +1,18 @@
+packages:
+  "framer-motion": "For page transitions and sophisticated loading animations during AI analysis"
+  "recharts": "For rendering statistical charts on the dashboard"
+  "date-fns": "For formatting clinical dates and times"
+  "react-dropzone": "For handling fundus image drag-and-drop uploads"
+  "clsx": "For conditional tailwind classes"
+  "tailwind-merge": "For merging tailwind classes safely"
+  "lucide-react": "For clinical and UI icons"
+
+images:
+  - path: "artifacts/eye-diagnosis/public/images/dashboard-hero.png"
+    description: "Abstract medical technology background with soft blue glowing nodes and a subtle human eye wireframe, clean and modern clinical look, highly polished"
+    aspect_ratio: "16:9"
+
+notes:
+  - "Assuming shadcn UI is available in @/components/ui/ but will use standard HTML/Tailwind for critical forms to prevent export errors"
+  - "The API expects base64 encoded strings for the image upload"
+  - "Will simulate a multi-step AI process visually while the real API mutation is pending"

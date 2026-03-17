@@ -9,6 +9,7 @@ import Patients from "./pages/Patients";
 import PatientDetail from "./pages/PatientDetail";
 import NewAnalysis from "./pages/NewAnalysis";
 import AnalysisDetail from "./pages/AnalysisDetail";
+import RetinaAnalysisDetail from "./pages/RetinaAnalysisDetail";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -29,6 +30,7 @@ function Router() {
         <Route path="/patients/:id" component={PatientDetail} />
         <Route path="/analyses/new" component={NewAnalysis} />
         <Route path="/analyses/:id" component={AnalysisDetail} />
+        <Route path="/retina-analyses/:id" component={RetinaAnalysisDetail} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

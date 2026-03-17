@@ -1,0 +1,75 @@
+# ============================================================
+# Retina-GPT Training Configuration
+# Optimized for: RTX 4050 6GB VRAM
+# ============================================================
+
+experiment:
+  name: "retina_gpt_base_v1"
+  seed: 42
+  output_dir: "checkpoints"
+  log_dir: "logs"
+
+data:
+  dataset: "aptos"
+  data_dir: "data"
+  image_size: 224           # MUST be 224 for RTX 4050 (512 = OOM)
+  num_workers: 4
+  pin_memory: true
+  val_split: 0.15
+  test_split: 0.05
+  balanced_sampling: true   # Handle class imbalance
+
+training:
+  num_epochs: 50
+  batch_size: 16             # RTX 4050 safe
+  grad_accumulation_steps: 4 # Effective batch = 64
+  unfreeze_backbone_layers: 4
+
+  optimizer:
+    type: "adamw"
+    learning_rate: 0.0001
+    weight_decay: 0.05
+    betas: [0.9, 0.999]
+
+  scheduler:
+    warmup_epochs: 5
+    min_lr: 0.000001
+
+  mixed_precision:
+    enabled: true
+    dtype: "fp16"            # BF16 not supported on RTX 4050
+
+  gradient_clipping: 1.0
+
+model:
+  size: "base"               # base = 768-dim. DO NOT use large on RTX 4050
+  image_size: 224
+  embed_dim: 768
+  depth: 12
+  num_heads: 12
+  patch_size: 16
+
+tasks:
+  quality:        true
+  classification: true       # DR grading — main task
+  segmentation:   false      # Skip for now (needs more VRAM)
+  detection:      false
+  report:         false
+
+loss_weights:
+  quality:        0.3
+  classification: 1.0
+
+checkpointing:
+  save_every_n_epochs: 5
+  keep_last_n: 3
+  monitor: "val/dr/kappa"
+  mode: "max"
+
+early_stopping:
+  patience: 10
+
+logging:
+  use_wandb: false           # Set true if you have W&B account
+  use_tensorboard: true
+  log_every_n_steps: 50
